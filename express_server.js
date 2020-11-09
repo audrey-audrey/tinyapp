@@ -1,8 +1,8 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-// const bodyParser = require("body-parser");
-// app.use(bodyParser.urlencoded({extended: true}));
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({extended: true}));
 
 // generate random shortURL
 function generateRandomString() {
@@ -53,8 +53,22 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+
+  const newURL = req.body.longURL; // req.body comes back as an object with key longURL
+  const newID = generateRandomString()
+
+  urlDatabase[newID] = newURL;
+
+  // redirect to /urls
+  res.redirect(`/urls`); // asking the browser to do another request 'GET /urls'
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL];
+
+  res.redirect(longURL);
 });
 
 app.listen(PORT, () => {
