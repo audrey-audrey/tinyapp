@@ -17,8 +17,19 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// example with saying Hello World!
 app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+  const templateVars = { greeting: 'Hello World!' };
+  res.render("hello_world", templateVars);
+});
+
+// using .render()
+app.get("/urls", (req, res) => {
+  const templateVars = { urls: urlDatabase}
+  // syntax for res.render(view [, locals] [, callback]) 
+  // since following views directory, no need to specify filepath
+  // locals (we're using tempalteVars) need to be an object
+  res.render("urls_index", templateVars);
 });
 
 app.listen(PORT, () => {
