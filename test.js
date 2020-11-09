@@ -3,6 +3,10 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const templateVars = { urls: urlDatabase}
+let random = Math.random()
+let stringy = random.toString(36)
+let substringy = stringy.substring(2,8)
 
-console.log(templateVars)
+console.log(random)
+console.log(stringy)
+console.log(substringy)
