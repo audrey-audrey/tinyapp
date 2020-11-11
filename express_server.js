@@ -38,7 +38,6 @@ app.get("/urls", (req, res) => {
   // syntax for res.render(view [, locals] [, callback]) 
   // since following views directory, no need to specify filepath
   // locals (we're using tempalteVars) need to be an object
-  console.log('app get urls')
   res.render("urls_index", templateVars);
 });
 
@@ -85,6 +84,7 @@ app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   urlDatabase[shortURL] = req.body.newURL;
 
+  // how do you redirect back to /urls after editing??
   res.redirect('/urls/' + shortURL);
 })
 
