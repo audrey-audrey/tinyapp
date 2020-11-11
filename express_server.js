@@ -24,12 +24,17 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// // what's in template currently
+// const templateVars = { 
+//   greeting: 'Hello World!',
+//   urls: urlDatabase,
+//   shortURL: req.params.shortURL, 
+//   longURL: urlDatabase[req.params.shortURL],
+//   username: req.cookies["username"]
+//  };
+
 app.get("/", (req, res) => {
   res.send("Hello!");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
 });
 
 // example with saying Hello World!
@@ -41,18 +46,22 @@ app.get("/hello", (req, res) => {
   res.render("hello_world", templateVars);
 });
 
-// using .render()
+
 app.get("/urls", (req, res) => {
   const templateVars = { 
     urls: urlDatabase,
     username: req.cookies["username"]
   }
-  // syntax for res.render(view [, locals] [, callback]) 
   // since following views directory, no need to specify filepath
   // locals (we're using tempalteVars) need to be an object
   res.render("urls_index", templateVars);
 });
 
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+// NOT WORKING -> username not defined??
 // need to be placed before /urls/:id (routes should be ordered from most specific to least specific)
 app.get("/urls/new", (req, res) => {
   const templateVars = {
@@ -82,10 +91,8 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
-
   res.redirect(longURL);
 });
 
@@ -118,6 +125,14 @@ app.post("/logout", (req, res) => {
   res.clearCookie('username')
   res.redirect('/urls/');
 })
+
+// create a registration page
+app.get("/register", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"],
+  };
+  res.render('register', templateVars)
+});
 
 // Starting server
 app.listen(PORT, () => {
