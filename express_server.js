@@ -180,6 +180,7 @@ app.post("/register", (req, res) => {
   if(!email || !password) {
     return res.status(400).send('Please enter email and password!')
   } else if (isEmailRegistered(email)){
+    console.log(users)
     return res.status(400).send('Email exists! Please login')
   } else {
   //adding user object to global users
@@ -190,6 +191,11 @@ app.post("/register", (req, res) => {
   }
   
 })
+
+app.get("/login", (req, res) => {
+
+  res.render('login')
+});
 
 // Starting server
 app.listen(PORT, () => {
