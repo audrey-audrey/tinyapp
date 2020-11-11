@@ -1,18 +1,24 @@
+// Required Modules and Settings
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+const CookieParser = require('cookie-parser');
+app.use(CookieParser());
 
-// generate random shortURL
+app.set("view engine", "ejs");
+
+// PORT
+const PORT = 8080; 
+
+// Function for generating random URL
 function generateRandomString() {
   // from lecture w3-d1
   // Math.random() specifies random number between 0 and 1 => toString base 36 => substring between index 2 and 8
   return Math.random().toString(36).substring(2,8);
 }
 
-app.set("view engine", "ejs");
-
+// url Database
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -28,13 +34,19 @@ app.get("/urls.json", (req, res) => {
 
 // example with saying Hello World!
 app.get("/hello", (req, res) => {
-  const templateVars = { greeting: 'Hello World!' };
+  const templateVars = { 
+    greeting: 'Hello World!',
+    username: req.cookies["username"]
+   };
   res.render("hello_world", templateVars);
 });
 
 // using .render()
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase}
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  }
   // syntax for res.render(view [, locals] [, callback]) 
   // since following views directory, no need to specify filepath
   // locals (we're using tempalteVars) need to be an object
@@ -48,7 +60,11 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const templateVars = { shortURL, longURL: urlDatabase[shortURL]};
+  const templateVars = { 
+    shortURL, 
+    longURL: urlDatabase[shortURL],
+    username: req.cookies["username"]
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -80,12 +96,18 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // Editing url
 app.post("/urls/:shortURL", (req, res) => {
-  console.log({urlDatabase})
   const shortURL = req.params.shortURL;
   urlDatabase[shortURL] = req.body.newURL;
 
   // how do you redirect back to /urls after editing??
   res.redirect('/urls/' + shortURL);
+})
+
+// handling a post to /login
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie('username', username);
+  res.redirect('/urls/');
 })
 
 // Starting server

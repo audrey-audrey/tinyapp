@@ -14,10 +14,18 @@
       </div>
          <!--adding login form-->
 
-          <form class="form-inline justify-content-right" action="/login" method="POST">
-            <input class="form-control" type="text" name="username" placeholder="username" style="width: 300px; margin: 1em">
-            <button type="submit">Login</button>
-          </form>
+          <% if(username){ %>
+            <form class="form-inline justify-content-right" action="/logout" method="POST">
+              <h6>Logged in as: <%= username %>  </h6>
+              <button type="submit">Logout</button>
+            </form>
+          <% } else{ %>  
+            <form class="form-inline justify-content-right" action="/login" method="POST">
+              <input class="form-control" type="text" name="username" placeholder="username" style="width: 300px; margin: 1em">
+              <button type="submit">Login</button>
+            </form>
+         <% } %>
+
         
           <!---->
     </div>
