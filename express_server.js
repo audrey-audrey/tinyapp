@@ -24,14 +24,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-// // what's in template currently
-// const templateVars = { 
-//   greeting: 'Hello World!',
-//   urls: urlDatabase,
-//   shortURL: req.params.shortURL, 
-//   longURL: urlDatabase[req.params.shortURL],
-//   username: req.cookies["username"]
-//  };
+// users information object
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -39,18 +44,24 @@ app.get("/", (req, res) => {
 
 // example with saying Hello World!
 app.get("/hello", (req, res) => {
+  const user_id = req.cookies.user_id
+  const user = users[user_id]
+
   const templateVars = { 
     greeting: 'Hello World!',
-    username: req.cookies["username"]
+    user
    };
   res.render("hello_world", templateVars);
 });
 
 
 app.get("/urls", (req, res) => {
+  const user_id = req.cookies.user_id
+  const user = users[user_id]
+
   const templateVars = { 
     urls: urlDatabase,
-    username: req.cookies["username"]
+    user
   }
   // since following views directory, no need to specify filepath
   // locals (we're using tempalteVars) need to be an object
@@ -61,21 +72,27 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// NOT WORKING -> username not defined??
 // need to be placed before /urls/:id (routes should be ordered from most specific to least specific)
 app.get("/urls/new", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"],
-  };
-  res.render("urls_new");
+  const user_id = req.cookies.user_id
+  const user = users[user_id]
+
+  const templateVars = { 
+    user
+   };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  const email = req.cookies.user_id.email;
   const shortURL = req.params.shortURL;
+  const user_id = req.cookies.user_id
+  const user = users[user_id]
+
   const templateVars = { 
     shortURL, 
     longURL: urlDatabase[shortURL],
-    username: req.cookies["username"]
+    user
   };
   res.render("urls_show", templateVars);
 });
@@ -115,24 +132,47 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // handling a post to /login and setting cookie
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie('username', username);
+  // const email = req.body.email;
+  // res.cookie('email', email)
+
   res.redirect('/urls/');
 })
 
 // handling /logout to clear cookie
 app.post("/logout", (req, res) => {
-  res.clearCookie('username')
+  res.clearCookie('user_id')
   res.redirect('/urls/');
 })
 
 // create a registration page
 app.get("/register", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"],
-  };
+  const user_id = req.cookies.user_id
+  const user = users[user_id]
+
+  const templateVars = { 
+    urls: urlDatabase,
+    user: user
+  }
+
   res.render('register', templateVars)
 });
+
+// registration handler 
+app.post("/register", (req, res) => {
+  const id = generateRandomString();
+  const email = req.body.email;
+  const password = req.body.password;
+  //adding user object to global users
+  users[id] = {id, email, password};
+
+  console.log('users: ', users)
+  console.log('cookies: ', req.cookies)
+
+  res.cookie('user_id', id);
+
+
+  res.redirect('/urls');
+})
 
 // Starting server
 app.listen(PORT, () => {
