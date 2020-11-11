@@ -41,7 +41,10 @@ const generateRandomString =  function() {
 // Function to check if email exists 
 const isEmailRegistered = function (email) {
   for(const user in users) {
-    if(user.email === email) {
+    console.log('user email: ', users[user].email)
+    console.log('compared email: ', email)
+    if(users[user].email === email) {
+      console.log('nope')
       return true;
     }
   } 
@@ -176,14 +179,13 @@ app.post("/register", (req, res) => {
   //checking if body is empty 
   if(!email || !password) {
     return res.status(400).send('Please enter email and password!')
-  } else if (!isEmailRegistered(email)){
+  } else if (isEmailRegistered(email)){
     return res.status(400).send('Email exists! Please login')
   } else {
   //adding user object to global users
     users[id] = {id, email, password};
 
     res.cookie('user_id', id);
-  
     res.redirect('/urls');
   }
   
