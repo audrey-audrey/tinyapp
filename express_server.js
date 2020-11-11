@@ -11,13 +11,6 @@ app.set("view engine", "ejs");
 // PORT
 const PORT = 8080; 
 
-// Function for generating random URL
-function generateRandomString() {
-  // from lecture w3-d1
-  // Math.random() specifies random number between 0 and 1 => toString base 36 => substring between index 2 and 8
-  return Math.random().toString(36).substring(2,8);
-}
-
 // url Database
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -36,6 +29,23 @@ const users = {
     email: "user2@example.com", 
     password: "dishwasher-funk"
   }
+}
+
+// Function for generating random URL
+const generateRandomString =  function() {
+  // from lecture w3-d1
+  // Math.random() specifies random number between 0 and 1 => toString base 36 => substring between index 2 and 8
+  return Math.random().toString(36).substring(2,8);
+}
+
+// Function to check if email exists 
+const isEmailRegistered = function (email) {
+  for(const user in users) {
+    if(user.email === email) {
+      return true;
+    }
+  } 
+  return false;
 }
 
 app.get("/", (req, res) => {
@@ -166,6 +176,8 @@ app.post("/register", (req, res) => {
   //checking if body is empty 
   if(!email || !password) {
     return res.status(400).send('Please enter email and password!')
+  } else if (!isEmailRegistered(email)){
+    return res.status(400).send('Email exists! Please login')
   } else {
   //adding user object to global users
     users[id] = {id, email, password};
