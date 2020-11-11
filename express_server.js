@@ -41,11 +41,18 @@ const generateRandomString =  function() {
 // Function to check if email exists 
 const isEmailRegistered = function (email) {
   for(const user in users) {
-    console.log('user email: ', users[user].email)
-    console.log('compared email: ', email)
     if(users[user].email === email) {
-      console.log('nope')
       return true;
+    }
+  } 
+  return false;
+}
+
+// Function to check if password matches 
+const doesPasswordMatch = function (password) {
+  for(const user in users) {
+    if(users[user].password === password) {
+      return user;
     }
   } 
   return false;
@@ -145,8 +152,18 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // handling a post to /login and setting cookie
 app.post("/login", (req, res) => {
-  // const email = req.body.email;
-  // res.cookie('email', email)
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  
+  if(!isEmailRegistered(userEmail)) {
+    return res.status(403).send('Email cannot be found!')
+  } else {
+    if(!doesPasswordMatch(userPassword)) {
+      return res.status(403).send('Password does not match!')
+    }
+  }
+  currentUserID = doesPasswordMatch(userPassword);
+  res.cookie('user_id', currentUserID)
 
   res.redirect('/urls/');
 })
