@@ -20,17 +20,9 @@
               <button type="submit">Logout</button>
             </form>
           <% } else { %>  
-            <form class="form-inline justify-content-right" action="/register" method="POST">
-              <button type="submit">Register</button>
-              </form>
-              <form class="form-inline justify-content-right" action="/login" method="POST">
-                <button type="submit">Login</button>
-            </form>
-            
-           
+            <a class="nav-item nav-link" href="/register">Register</a>
+            <a class="nav-item nav-link" href="/login">Login</a>
          <% } %>
-
-        
           <!---->
     </div>
   </nav>
