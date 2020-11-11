@@ -210,7 +210,14 @@ app.post("/register", (req, res) => {
 })
 
 app.get("/login", (req, res) => {
-  res.render('login')
+  const user_id = req.cookies.user_id
+  const user = users[user_id]
+  const templateVars = { 
+    urls: urlDatabase,
+    user: user
+  }
+
+  res.render('login', templateVars)
 });
 
 // Starting server
