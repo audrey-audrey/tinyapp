@@ -162,16 +162,19 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+
+  //checking if body is empty 
+  if(!email || !password) {
+    return res.status(400).send('Please enter email and password!')
+  } else {
   //adding user object to global users
-  users[id] = {id, email, password};
+    users[id] = {id, email, password};
 
-  console.log('users: ', users)
-  console.log('cookies: ', req.cookies)
-
-  res.cookie('user_id', id);
-
-
-  res.redirect('/urls');
+    res.cookie('user_id', id);
+  
+    res.redirect('/urls');
+  }
+  
 })
 
 // Starting server
