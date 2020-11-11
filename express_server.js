@@ -38,6 +38,7 @@ app.get("/urls", (req, res) => {
   // syntax for res.render(view [, locals] [, callback]) 
   // since following views directory, no need to specify filepath
   // locals (we're using tempalteVars) need to be an object
+  console.log('app get urls')
   res.render("urls_index", templateVars);
 });
 
@@ -53,7 +54,6 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-
   const newURL = req.body.longURL; // req.body comes back as an object with key longURL
   const newID = generateRandomString()
 
@@ -79,6 +79,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect('/urls');
 })
 
+// Editing url
+app.post("/urls/:shortURL", (req, res) => {
+  console.log({urlDatabase})
+  const shortURL = req.params.shortURL;
+  urlDatabase[shortURL] = req.body.newURL;
+
+  res.redirect('/urls/' + shortURL);
+})
+
+// Starting server
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
