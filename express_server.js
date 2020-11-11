@@ -55,6 +55,9 @@ app.get("/urls", (req, res) => {
 
 // need to be placed before /urls/:id (routes should be ordered from most specific to least specific)
 app.get("/urls/new", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"],
+  };
   res.render("urls_new");
 });
 
@@ -103,10 +106,16 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect('/urls/' + shortURL);
 })
 
-// handling a post to /login
+// handling a post to /login and setting cookie
 app.post("/login", (req, res) => {
   const username = req.body.username;
   res.cookie('username', username);
+  res.redirect('/urls/');
+})
+
+// handling /logout to clear cookie
+app.post("/logout", (req, res) => {
+  res.clearCookie('username')
   res.redirect('/urls/');
 })
 
