@@ -5,6 +5,9 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 const cookieSession = require('cookie-session');
 
+//required functions 
+const {isEmailRegistered} = require ('./helpers')
+
 app.use(
   cookieSession({
     name: 'session',
@@ -59,24 +62,13 @@ const urlsForUser = function(id) {
   return userURLObject
 }
 
-// Function to check if email exists 
-const isEmailRegistered = function (email) {
-  for(const user in users) {
-    if(users[user].email === email) {
-      return true;
-    }
-  } 
-  return false;
-}
-
 // Function to check if password matches 
-const doesPasswordMatch = function (password) {
-  for(const user in users) {
-    const result = bcrypt.compareSync(password, users[user].password);
-    if(result) {
-      return user;
-    }
-  } 
+const doesPasswordMatch = function (userObjectInfo, userPassword) {
+
+  if(userObjectInfo && bcrypt.compareSync(userPassword, userObjectInfo.password)) {
+    console.log('returned: ', userObjectInfo.id)
+    return userObjectInfo.id;
+  }
   return false;
 }
 
@@ -192,15 +184,16 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
+  const emailExist = isEmailRegistered(userEmail, users)
   
-  if(!isEmailRegistered(userEmail)) {
+  if(!emailExist) {
     return res.status(403).send('Email cannot be found!')
   } else {
-    if(!doesPasswordMatch(userPassword)) {
+    if(!doesPasswordMatch(emailExist, userPassword)) {
       return res.status(403).send('Password does not match!')
     }
   }
-  currentUserID = doesPasswordMatch(userPassword);
+  currentUserID = doesPasswordMatch(emailExist, userPassword);
   req.session.user_id = currentUserID;
 
   res.redirect('/urls/');
@@ -237,7 +230,7 @@ app.post("/register", (req, res) => {
   //checking if body is empty 
   if(!email || !password) {
     return res.status(400).send('Please enter email and password!')
-  } else if (isEmailRegistered(email)){
+  } else if (isEmailRegistered(email, users)){
     return res.status(400).send('Email exists! Please login')
   } else {
   //adding user object to global users
@@ -268,3 +261,4 @@ app.get("/user", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
