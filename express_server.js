@@ -13,8 +13,8 @@ const PORT = 8080;
 
 // url Database
 const urlDatabase = {
-  "b2xVn2": { longURL:"http://www.lighthouselabs.ca" },
-  "9sm5xK": { longURL:"http://www.google.com" }
+  "b2xVn2": { longURL:"http://www.lighthouselabs.ca", userID: "userRandomID" },
+  "9sm5xK": { longURL:"http://www.google.com", userID: "userRandom2ID" }
   // shortURL: {longURL: longURL, userID: ID}
 };
 
@@ -90,12 +90,15 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const user_id = req.cookies.user_id
+  const userURLs = urlsForUser(user_id) 
   const user = users[user_id]
 
   const templateVars = { 
-    urls: urlDatabase,
+    urls: userURLs,
     user
   }
+
+  console.log('from urls page: ', userURLs)
   // since following views directory, no need to specify filepath
   // locals (we're using tempalteVars) need to be an object
   res.render("urls_index", templateVars);
@@ -133,14 +136,14 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL; // req.body comes back as an object with key longURL
   const newID = generateRandomString()
-  const user_id = req.cookies.user_id
-  const user = users[user_id].id
+  const userID = req.cookies.user_id
 
-  urlDatabase[newID] = {longURL, user};
-  console.log(urlDatabase)
+  // add to urlDatabase object
+  urlDatabase[newID] = {longURL, userID};
+  // const userURLs = urlsForUser(user_id)
 
   // redirect to /urls
-  res.redirect(`/urls`); // asking the browser to do another request 'GET /urls'
+  res.redirect(`/urls/${newID}`); // asking the browser to do another request 'GET /urls'
 });
 
 app.get("/u/:shortURL", (req, res) => {

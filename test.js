@@ -1,9 +1,6 @@
 const urlDatabase = {
-  "b2xVn2": { longURL:"http://www.lighthouselabs.ca", userID: 'a'},
-  "9sm5xK": { longURL:"http://www.google.com", userID: 'a' },
-  "fhdfhf": { longURL:"http://www.google.ca", userID: 'b' },
-  "fnebdt": { longURL:"http://www.youtube.com", userID: 'b' },
-  "9erhtr": { longURL:"http://www.facebook.com", userID: 'a' },
+  "b2xVn2": { longURL:"http://www.lighthouselabs.ca", userID: "userRandomID" },
+  "9sm5xK": { longURL:"http://www.google.com", userID: "userRandom2ID" }
   // shortURL: {longURL: longURL, userID: ID}
 };
 
@@ -19,4 +16,4 @@ const urlsForUser = function(id) {
   return userURLObject
 }
 
-console.log(urlsForUser('a'))
+console.log(urlsForUser('userRandomID'))
