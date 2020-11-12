@@ -1,35 +1,38 @@
 // Required Modules and Settings
 const express = require("express");
 const app = express();
+const bcrypt = require('bcrypt');
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
 const cookieSession = require('cookie-session');
 
-//required functions 
-const {getUserByEmail} = require ('./helpers')
+// Setting ejs as template
+app.set("view engine", "ejs");
 
+// body parser
+app.use(bodyParser.urlencoded({extended: true}));
+
+// cookie parser
 app.use(
   cookieSession({
     name: 'session',
     keys: ['key1', 'key2'],
   })
-);
-
-const bcrypt = require('bcrypt');
-
-app.set("view engine", "ejs");
+  );
+  
+// Required helper functions 
+const { getUserByEmail, generateRandomString, urlsForUser, doesPasswordMatch } = require ('./helpers')
 
 // PORT
 const PORT = 8080; 
 
-// url Database
+// Database for all URLs
 const urlDatabase = {
   "b2xVn2": { longURL:"http://www.lighthouselabs.ca", userID: "userRandomID" },
   "9sm5xK": { longURL:"http://www.google.com", userID: "userRandom2ID" }
-  // shortURL: {longURL: longURL, userID: ID}
+  // format => shortURL: {longURL: longURL, userID: ID}
 };
 
-// users information object
+// Database for all users
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
@@ -43,59 +46,30 @@ const users = {
   }
 }
 
-// Function for generating random URL
-const generateRandomString =  function() {
-  // from lecture w3-d1
-  // Math.random() specifies random number between 0 and 1 => toString base 36 => substring between index 2 and 8
-  return Math.random().toString(36).substring(2,8);
-}
+// ROUTES 
 
-// url Database for a given user
-const urlsForUser = function(id) {
-  let userURLObject = {};
-  for(const url in urlDatabase) {
-    const longURL = urlDatabase[url].longURL;
-    const userID = urlDatabase[url].userID
-    if(id === userID)
-    userURLObject[url] = {longURL, userID}
-  }
-  return userURLObject
-}
-
-// Function to check if password matches 
-const doesPasswordMatch = function (userObjectInfo, userPassword) {
-
-  console.log(userObjectInfo)
-  console.log(userObjectInfo.password)
-  console.log(userPassword)
-
-  if(userObjectInfo && bcrypt.compareSync(userPassword, userObjectInfo.password)) {
-    console.log('returned: ', userObjectInfo.id)
-    return userObjectInfo.id;
-  }
-  return false;
-}
-
+// route get /
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-// example with saying Hello World!
+// route get /hello
 app.get("/hello", (req, res) => {
-  const user_id = req.session.user_id
-  const user = users[user_id]
+  const user_id = req.session.user_id // => information saved in cookie session under key "user_id"
+  const user = users[user_id] // => current user information obtained from user database
 
   const templateVars = { 
     greeting: 'Hello World!',
     user
    };
+
   res.render("hello_world", templateVars);
 });
 
-
+// route get /urls
 app.get("/urls", (req, res) => {
   const user_id = req.session.user_id
-  const userURLs = urlsForUser(user_id) 
+  const userURLs = urlsForUser(user_id, urlDatabase) // => using function urlsForUser to obtain URLs submitted by current user
   const user = users[user_id]
 
   const templateVars = { 
@@ -103,16 +77,15 @@ app.get("/urls", (req, res) => {
     user
   }
 
-  // since following views directory, no need to specify filepath
-  // locals (we're using tempalteVars) need to be an object
   res.render("urls_index", templateVars);
 });
 
+// route get /urls.json 
 app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+  res.json(urlDatabase); // => to view current urlDatabase
 });
 
-// need to be placed before /urls/:id (routes should be ordered from most specific to least specific)
+// route get /urls/new
 app.get("/urls/new", (req, res) => {
   const user_id = req.session.user_id
   const user = users[user_id]
@@ -188,16 +161,17 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const emailExist = getUserByEmail(userEmail, users)
+  const userFound = getUserByEmail(userEmail, users)
+  const currentUserID = doesPasswordMatch(userFound, userPassword)
   
-  if(!emailExist) {
+  if(!userFound) {
     return res.status(403).send('Email cannot be found!')
   } else {
-    if(!doesPasswordMatch(emailExist, userPassword)) {
+    if(!currentUserID) {
       return res.status(403).send('Password does not match!')
     }
   }
-  currentUserID = doesPasswordMatch(emailExist, userPassword);
+  
   req.session.user_id = currentUserID;
 
   res.redirect('/urls/');
