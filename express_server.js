@@ -120,7 +120,6 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const email = req.cookies.user_id.email;
   const shortURL = req.params.shortURL;
   const user_id = req.cookies.user_id
   const user = users[user_id]
@@ -154,19 +153,25 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Deleting url
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
-
-  res.redirect('/urls');
+    const shortURL = req.params.shortURL;
+    delete urlDatabase[shortURL];
+  
+    res.redirect('/urls');
+  
 })
 
 // Editing url
 app.post("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL;
-  urlDatabase[shortURL].longURL = req.body.newURL;
-
-  // how do you redirect back to /urls after editing??
-  res.redirect('/urls/' + shortURL);
+  if(req.cookies.user_id){
+    const shortURL = req.params.shortURL;
+    urlDatabase[shortURL].longURL = req.body.newURL;
+  
+    // how do you redirect back to /urls after editing??
+    res.redirect('/urls/' + shortURL);
+  } else {
+    res.send('Login required to edit URL')
+  }
+  
 })
 
 // handling a post to /login and setting cookie
