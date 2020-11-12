@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 const CookieParser = require('cookie-parser');
 app.use(CookieParser());
+const bcrypt = require('bcrypt');
 
 app.set("view engine", "ejs");
 
@@ -98,7 +99,6 @@ app.get("/urls", (req, res) => {
     user
   }
 
-  console.log('from urls page: ', userURLs)
   // since following views directory, no need to specify filepath
   // locals (we're using tempalteVars) need to be an object
   res.render("urls_index", templateVars);
@@ -153,11 +153,17 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Deleting url
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const user_id = req.cookies.user_id
+  const user = users[user_id]
+
+  if(user) {
     const shortURL = req.params.shortURL;
     delete urlDatabase[shortURL];
   
-    res.redirect('/urls');
-  
+    return res.redirect('/urls');
+  } 
+  res.send('Please login to delete URL')
+
 })
 
 // Editing url
@@ -221,7 +227,6 @@ app.post("/register", (req, res) => {
   if(!email || !password) {
     return res.status(400).send('Please enter email and password!')
   } else if (isEmailRegistered(email)){
-    console.log(users)
     return res.status(400).send('Email exists! Please login')
   } else {
   //adding user object to global users
@@ -242,6 +247,10 @@ app.get("/login", (req, res) => {
   }
 
   res.render('login', templateVars)
+});
+
+app.get("/user", (req, res) => {
+  res.send(users);
 });
 
 // Starting server
