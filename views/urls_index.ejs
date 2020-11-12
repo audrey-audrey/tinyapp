@@ -33,9 +33,7 @@
               <td><button>Delete</button></td>
             </form>
             <!-- Adding edit button -->
-            <form method="POST" action="/urls/<%= url %>">
-              <td><button>Edit</button></td>
-            </form>
+            <td><a href="/urls/<%= url %>"><button>Edit</button></a></td>
           </tr>
         <% } %>
       </tbody>
