@@ -15,7 +15,6 @@ const PORT = 8080;
 const urlDatabase = {
   "b2xVn2": { longURL:"http://www.lighthouselabs.ca" },
   "9sm5xK": { longURL:"http://www.google.com" }
-  // User entered URL will be stored in the following format
   // shortURL: {longURL: longURL, userID: ID}
 };
 
