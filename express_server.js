@@ -3,8 +3,15 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-const CookieParser = require('cookie-parser');
-app.use(CookieParser());
+const cookieSession = require('cookie-session');
+
+app.use(
+  cookieSession({
+    name: 'session',
+    keys: ['key1', 'key2'],
+  })
+);
+
 const bcrypt = require('bcrypt');
 
 app.set("view engine", "ejs");
@@ -65,7 +72,8 @@ const isEmailRegistered = function (email) {
 // Function to check if password matches 
 const doesPasswordMatch = function (password) {
   for(const user in users) {
-    if(users[user].password === password) {
+    const result = bcrypt.compareSync(password, users[user].password);
+    if(result) {
       return user;
     }
   } 
@@ -78,7 +86,7 @@ app.get("/", (req, res) => {
 
 // example with saying Hello World!
 app.get("/hello", (req, res) => {
-  const user_id = req.cookies.user_id
+  const user_id = req.session.user_id
   const user = users[user_id]
 
   const templateVars = { 
@@ -90,7 +98,7 @@ app.get("/hello", (req, res) => {
 
 
 app.get("/urls", (req, res) => {
-  const user_id = req.cookies.user_id
+  const user_id = req.session.user_id
   const userURLs = urlsForUser(user_id) 
   const user = users[user_id]
 
@@ -110,7 +118,7 @@ app.get("/urls.json", (req, res) => {
 
 // need to be placed before /urls/:id (routes should be ordered from most specific to least specific)
 app.get("/urls/new", (req, res) => {
-  const user_id = req.cookies.user_id
+  const user_id = req.session.user_id
   const user = users[user_id]
 
   const templateVars = { 
@@ -121,7 +129,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const user_id = req.cookies.user_id
+  const user_id = req.session.user_id
   const user = users[user_id]
 
   const templateVars = { 
@@ -135,7 +143,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL; // req.body comes back as an object with key longURL
   const newID = generateRandomString()
-  const userID = req.cookies.user_id
+  const userID = req.session.user_id
 
   // add to urlDatabase object
   urlDatabase[newID] = {longURL, userID};
@@ -153,7 +161,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 // Deleting url
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const user_id = req.cookies.user_id
+  const user_id = req.session.user_id
   const user = users[user_id]
 
   if(user) {
@@ -168,7 +176,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // Editing url
 app.post("/urls/:shortURL", (req, res) => {
-  if(req.cookies.user_id){
+  if(req.session.user_id){
     const shortURL = req.params.shortURL;
     urlDatabase[shortURL].longURL = req.body.newURL;
   
@@ -193,20 +201,22 @@ app.post("/login", (req, res) => {
     }
   }
   currentUserID = doesPasswordMatch(userPassword);
-  res.cookie('user_id', currentUserID)
+  req.session.user_id = currentUserID;
 
   res.redirect('/urls/');
 })
 
 // handling /logout to clear cookie
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id')
+  // clear the cookies
+  req.session = null;
+
   res.redirect('/urls/');
 })
 
 // create a registration page
 app.get("/register", (req, res) => {
-  const user_id = req.cookies.user_id
+  const user_id = req.session.user_id
   const user = users[user_id]
 
   const templateVars = { 
@@ -222,6 +232,7 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
   //checking if body is empty 
   if(!email || !password) {
@@ -230,16 +241,16 @@ app.post("/register", (req, res) => {
     return res.status(400).send('Email exists! Please login')
   } else {
   //adding user object to global users
-    users[id] = {id, email, password};
+    users[id] = {id, email, password: hashedPassword};
 
-    res.cookie('user_id', id);
+    req.session.user_id = id;
     res.redirect('/urls');
   }
   
 })
 
 app.get("/login", (req, res) => {
-  const user_id = req.cookies.user_id
+  const user_id = req.session.user_id
   const user = users[user_id]
   const templateVars = { 
     urls: urlDatabase,
