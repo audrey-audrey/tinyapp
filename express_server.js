@@ -13,8 +13,10 @@ const PORT = 8080;
 
 // url Database
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL:"http://www.lighthouselabs.ca" },
+  "9sm5xK": { longURL:"http://www.google.com" }
+  // User entered URL will be stored in the following format
+  // shortURL: {longURL: longURL, userID: ID}
 };
 
 // users information object
@@ -118,10 +120,13 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const newURL = req.body.longURL; // req.body comes back as an object with key longURL
+  const longURL = req.body.longURL; // req.body comes back as an object with key longURL
   const newID = generateRandomString()
+  const user_id = req.cookies.user_id
+  const user = users[user_id].id
 
-  urlDatabase[newID] = newURL;
+  urlDatabase[newID] = {longURL, user};
+  console.log(urlDatabase)
 
   // redirect to /urls
   res.redirect(`/urls`); // asking the browser to do another request 'GET /urls'
