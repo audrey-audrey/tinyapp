@@ -39,6 +39,18 @@ const generateRandomString =  function() {
   return Math.random().toString(36).substring(2,8);
 }
 
+// url Database for a given user
+const urlsForUser = function(id) {
+  let userURLObject = {};
+  for(const url in urlDatabase) {
+    const longURL = urlDatabase[url].longURL;
+    const userID = urlDatabase[url].userID
+    if(id === userID)
+    userURLObject[url] = {longURL, userID}
+  }
+  return userURLObject
+}
+
 // Function to check if email exists 
 const isEmailRegistered = function (email) {
   for(const user in users) {
