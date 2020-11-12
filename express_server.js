@@ -113,7 +113,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const templateVars = { 
     shortURL, 
-    longURL: urlDatabase[shortURL],
+    longURL: urlDatabase[shortURL].longURL,
     user
   };
   res.render("urls_show", templateVars);
@@ -134,7 +134,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -149,7 +149,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // Editing url
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = req.body.newURL;
+  urlDatabase[shortURL].longURL = req.body.newURL;
 
   // how do you redirect back to /urls after editing??
   res.redirect('/urls/' + shortURL);
