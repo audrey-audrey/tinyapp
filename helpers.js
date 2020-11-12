@@ -1,11 +1,12 @@
 // Function to check if email exists 
-const isEmailRegistered = function (email, database) {
+const getUserByEmail = function (email, database) {
   for (const user in database) {
     if (database[user].email === email) {
       return database[user];
     }
   }
-  return false;
+  return undefined;
 }
 
-module.exports = { isEmailRegistered }
+module.exports = { getUserByEmail }
+

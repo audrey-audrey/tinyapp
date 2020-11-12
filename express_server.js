@@ -6,7 +6,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieSession = require('cookie-session');
 
 //required functions 
-const {isEmailRegistered} = require ('./helpers')
+const {getUserByEmail} = require ('./helpers')
 
 app.use(
   cookieSession({
@@ -64,6 +64,10 @@ const urlsForUser = function(id) {
 
 // Function to check if password matches 
 const doesPasswordMatch = function (userObjectInfo, userPassword) {
+
+  console.log(userObjectInfo)
+  console.log(userObjectInfo.password)
+  console.log(userPassword)
 
   if(userObjectInfo && bcrypt.compareSync(userPassword, userObjectInfo.password)) {
     console.log('returned: ', userObjectInfo.id)
@@ -184,7 +188,7 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const emailExist = isEmailRegistered(userEmail, users)
+  const emailExist = getUserByEmail(userEmail, users)
   
   if(!emailExist) {
     return res.status(403).send('Email cannot be found!')
@@ -230,7 +234,7 @@ app.post("/register", (req, res) => {
   //checking if body is empty 
   if(!email || !password) {
     return res.status(400).send('Please enter email and password!')
-  } else if (isEmailRegistered(email, users)){
+  } else if (getUserByEmail(email, users)){
     return res.status(400).send('Email exists! Please login')
   } else {
   //adding user object to global users
@@ -261,4 +265,3 @@ app.get("/user", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
