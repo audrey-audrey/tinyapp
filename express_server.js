@@ -125,6 +125,21 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// route post /urls/:shortURL
+app.post("/urls/:shortURL", (req, res) => {
+  if (req.session.user_id) {
+    console.log(req.params)
+    console.log(req.body)
+    const shortURL = req.params.shortURL;
+    urlDatabase[shortURL].longURL = req.body.newURL;
+  
+    // how do you redirect back to /urls after editing??
+    res.redirect('/urls/');
+  } else {
+    res.send('Login required to edit URL');
+  }
+});
+
 // route get /u/:shortURL
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL; // => shortURL obtained from request body
@@ -144,19 +159,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     return res.redirect('/urls');
   }
   res.send('Please login to delete URL');
-});
-
-// Editing url
-app.post("/urls/:shortURL", (req, res) => {
-  if (req.session.user_id) {
-    const shortURL = req.params.shortURL;
-    urlDatabase[shortURL].longURL = req.body.newURL;
-  
-    // how do you redirect back to /urls after editing??
-    res.redirect('/urls/' + shortURL);
-  } else {
-    res.send('Login required to edit URL');
-  }
 });
 
 // route get /login
@@ -194,7 +196,7 @@ app.post("/logout", (req, res) => {
   // clear the cookies
   req.session = null;
 
-  res.redirect('/urls/');
+  res.redirect('/login');
 });
 
 // route get /register
@@ -229,10 +231,6 @@ app.post("/register", (req, res) => {
     req.session.user_id = id;
     res.redirect('/urls');
   }
-});
-
-app.get("/user", (req, res) => {
-  res.send(users);
 });
 
 // Starting server
