@@ -50,19 +50,13 @@ const users = {
 
 // route get /
 app.get("/", (req, res) => {
-  const user_id = req.session.user_id; // => information saved in cookie session under key "user_id"
-  const user = users[user_id]; // => current user information obtained from user database
-  
-  if (user) {
-    return res.redirect('/urls');
-  }
-  res.redirect('/login');
+  res.send("Hello!");
 });
 
 // route get /hello
 app.get("/hello", (req, res) => {
-  const user_id = req.session.user_id;
-  const user = users[user_id];
+  const user_id = req.session.user_id; // => information saved in cookie session under key "user_id"
+  const user = users[user_id]; // => current user information obtained from user database
 
   const templateVars = {
     greeting: 'Hello World!',
@@ -134,8 +128,8 @@ app.get("/urls/:shortURL", (req, res) => {
 // route post /urls/:shortURL
 app.post("/urls/:shortURL", (req, res) => {
   if (req.session.user_id) {
-    console.log(req.params);
-    console.log(req.body);
+    console.log(req.params)
+    console.log(req.body)
     const shortURL = req.params.shortURL;
     urlDatabase[shortURL].longURL = req.body.newURL;
   
@@ -148,16 +142,10 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // route get /u/:shortURL
 app.get("/u/:shortURL", (req, res) => {
-  const user_id = req.session.user_id;
-  const user = users[user_id];
+  const shortURL = req.params.shortURL; // => shortURL obtained from request body
+  const longURL = urlDatabase[shortURL].longURL;
 
-  if(user) {
-    const shortURL = req.params.shortURL; // => shortURL obtained from request body
-    const longURL = urlDatabase[shortURL].longURL;
-
-    return res.redirect(longURL);
-  }
-
+  res.redirect(longURL);
 });
 
 // route delete post /urls/:shortURL/delete
@@ -177,15 +165,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get("/login", (req, res) => {
   const user_id = req.session.user_id;
   const user = users[user_id];
-
   const templateVars = {
     urls: urlDatabase,
     user: user
   };
 
-  if (user) {
-    return res.redirect('/urls');
-  }
   res.render('login', templateVars);
 });
 
@@ -212,7 +196,7 @@ app.post("/logout", (req, res) => {
   // clear the cookies
   req.session = null;
 
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 // route get /register
