@@ -50,13 +50,18 @@ const users = {
 
 // route get /
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  const user_id = req.session.user_id; // => information saved in cookie session under key "user_id"
+  const user = users[user_id]; // => current user information obtained from user database
+  if (user) {
+    return res.redirect('/urls');
+  }
+  res.redirect('/login');
 });
 
 // route get /hello
 app.get("/hello", (req, res) => {
-  const user_id = req.session.user_id; // => information saved in cookie session under key "user_id"
-  const user = users[user_id]; // => current user information obtained from user database
+  const user_id = req.session.user_id; 
+  const user = users[user_id]; 
 
   const templateVars = {
     greeting: 'Hello World!',
