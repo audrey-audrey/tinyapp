@@ -9,7 +9,7 @@ const cookieSession = require('cookie-session');
 app.set("view engine", "ejs");
 
 // body parser
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // cookie parser
 app.use(
@@ -18,7 +18,7 @@ app.use(
     keys: ['key1', 'key2'],
   })
 );
-  
+
 // Required helper functions
 const { getUserByEmail, generateRandomString, urlsForUser, doesPasswordMatch } = require('./helpers');
 const e = require("express");
@@ -27,10 +27,10 @@ const e = require("express");
 const PORT = 8080;
 
 // Database for all URLs
+// format => shortURL: {longURL: longURL, userID: ID}
 const urlDatabase = {
-  "b2xVn2": { longURL:"http://www.lighthouselabs.ca"},
-  "9sm5xK": { longURL:"http://www.google.com"}
-  // format => shortURL: {longURL: longURL, userID: ID}
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca" },
+  "9sm5xK": { longURL: "http://www.google.com" }
 };
 
 // Database for all users
@@ -80,7 +80,7 @@ app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
 
   // add to urlDatabase object
-  urlDatabase[newID] = {longURL, userID};
+  urlDatabase[newID] = { longURL, userID };
 
   // redirect to /urls
   res.redirect(`/urls/${newID}`);
@@ -116,19 +116,19 @@ app.get("/urls/:shortURL", (req, res) => {
   };
 
   // If user_id not found 
-  if(!user_id) {
+  if (!user_id) {
     return res.send('Login required to edit URL');
   }
 
   // If url not found
-  if(!urlDatabase[shortURL]) {
+  if (!urlDatabase[shortURL]) {
     return res.send('URL not found!');
   }
 
   // If user_id matches URL creator id
-  if(user_id === urlDatabase[shortURL].userID) {
+  if (user_id === urlDatabase[shortURL].userID) {
     templateVars.longURL = urlDatabase[shortURL].longURL,
-    res.render("urls_show", templateVars);
+      res.render("urls_show", templateVars);
   } else {
     return res.send('Unauthorized access!')
   }
@@ -188,13 +188,13 @@ app.post("/login", (req, res) => {
   const userPassword = req.body.password;
   const userFound = getUserByEmail(userEmail, users);
   const currentUserID = doesPasswordMatch(userFound, userPassword);
-  
+
   if (!userFound) {
     return res.status(403).send('Email cannot be found!');
   } else if (!currentUserID) {
     return res.status(403).send('Password does not match!');
   }
-  
+
   req.session.user_id = currentUserID;
 
   res.redirect('/urls/');
@@ -234,8 +234,8 @@ app.post("/register", (req, res) => {
   } else if (getUserByEmail(email, users)) {
     return res.status(400).send('Email exists! Please login');
   } else {
-  //adding user object to global users
-    users[id] = {id, email, password: hashedPassword};
+    //adding user object to global users
+    users[id] = { id, email, password: hashedPassword };
 
     req.session.user_id = id;
     res.redirect('/urls');
