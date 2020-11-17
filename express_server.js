@@ -27,8 +27,8 @@ const PORT = 8080;
 
 // Database for all URLs
 const urlDatabase = {
-  "b2xVn2": { longURL:"http://www.lighthouselabs.ca", userID: "userRandomID" },
-  "9sm5xK": { longURL:"http://www.google.com", userID: "userRandom2ID" }
+  "b2xVn2": { longURL:"http://www.lighthouselabs.ca"},
+  "9sm5xK": { longURL:"http://www.google.com"}
   // format => shortURL: {longURL: longURL, userID: ID}
 };
 
@@ -133,8 +133,6 @@ app.get("/urls/:shortURL", (req, res) => {
 // route post /urls/:shortURL
 app.post("/urls/:shortURL", (req, res) => {
   if (req.session.user_id) {
-    console.log(req.params)
-    console.log(req.body)
     const shortURL = req.params.shortURL;
     urlDatabase[shortURL].longURL = req.body.newURL;
   
