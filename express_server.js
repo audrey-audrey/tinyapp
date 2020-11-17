@@ -58,19 +58,6 @@ app.get("/", (req, res) => {
   res.redirect('/login');
 });
 
-// route get /hello
-app.get("/hello", (req, res) => {
-  const user_id = req.session.user_id; 
-  const user = users[user_id]; 
-
-  const templateVars = {
-    greeting: 'Hello World!',
-    user
-  };
-
-  res.render("hello_world", templateVars);
-});
-
 // route get /urls
 app.get("/urls", (req, res) => {
   const user_id = req.session.user_id;
@@ -121,22 +108,27 @@ app.get("/urls/:shortURL", (req, res) => {
   const user_id = req.session.user_id;
   const user = users[user_id];
 
-  const templateVars = {
-    shortURL,
-    longURL: urlDatabase[shortURL].longURL,
-    user
-  };
-
-  res.render("urls_show", templateVars);
+  if(user) {
+    const templateVars = {
+      shortURL,
+      longURL: urlDatabase[shortURL].longURL,
+      user
+    };
+  
+    return res.render("urls_show", templateVars);
+  } 
+  res.send('Login required to edit URL');
 });
 
 // route post /urls/:shortURL
 app.post("/urls/:shortURL", (req, res) => {
-  if (req.session.user_id) {
+  const user_id = req.session.user_id;
+  const user = users[user_id];
+
+  if (user) {
     const shortURL = req.params.shortURL;
     urlDatabase[shortURL].longURL = req.body.newURL;
   
-    // how do you redirect back to /urls after editing??
     res.redirect('/urls/');
   } else {
     res.send('Login required to edit URL');
