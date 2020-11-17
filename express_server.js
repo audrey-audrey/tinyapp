@@ -21,6 +21,7 @@ app.use(
   
 // Required helper functions
 const { getUserByEmail, generateRandomString, urlsForUser, doesPasswordMatch } = require('./helpers');
+const e = require("express");
 
 // PORT
 const PORT = 8080;
@@ -108,16 +109,29 @@ app.get("/urls/:shortURL", (req, res) => {
   const user_id = req.session.user_id;
   const user = users[user_id];
 
-  if(user) {
-    const templateVars = {
-      shortURL,
-      longURL: urlDatabase[shortURL].longURL,
-      user
-    };
-  
-    return res.render("urls_show", templateVars);
-  } 
-  res.send('Login required to edit URL');
+  const templateVars = {
+    shortURL,
+    longURL: null,
+    user
+  };
+
+  // If user_id not found 
+  if(!user_id) {
+    return res.send('Login required to edit URL');
+  }
+
+  // If url not found
+  if(!urlDatabase[shortURL]) {
+    return res.send('URL not found!');
+  }
+
+  // If user_id matches URL creator id
+  if(user_id === urlDatabase[shortURL].userID) {
+    templateVars.longURL = urlDatabase[shortURL].longURL,
+    res.render("urls_show", templateVars);
+  } else {
+    return res.send('Unauthorized access!')
+  }
 });
 
 // route post /urls/:shortURL
@@ -125,13 +139,13 @@ app.post("/urls/:shortURL", (req, res) => {
   const user_id = req.session.user_id;
   const user = users[user_id];
 
-  if (user) {
+  if (user === urlDatabase[shortURL].userID) {
     const shortURL = req.params.shortURL;
     urlDatabase[shortURL].longURL = req.body.newURL;
-  
+
     res.redirect('/urls/');
   } else {
-    res.send('Login required to edit URL');
+    res.send('Unauthorized access!');
   }
 });
 
