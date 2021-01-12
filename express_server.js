@@ -24,7 +24,7 @@ const { getUserByEmail, generateRandomString, urlsForUser, doesPasswordMatch } =
 const e = require("express");
 
 // PORT
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 // Database for all URLs
 // format => shortURL: {longURL: longURL, userID: ID}
