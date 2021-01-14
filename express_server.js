@@ -8,6 +8,9 @@ const cookieSession = require('cookie-session');
 // Setting ejs as template
 app.set("view engine", "ejs");
 
+// Styling folder
+app.use(express.static(__dirname + '/styles'));
+
 // body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 
