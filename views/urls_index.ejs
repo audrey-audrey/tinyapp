@@ -30,18 +30,18 @@
             <td><%= urls[url].longURL %></td>
             <!-- Adding delete button -->
             <form method="POST" action="/urls/<%= url %>/delete">
-              <td><button>Delete</button></td>
+              <td><button class="btn btn-danger">Delete</button></td>
             </form>
             <!-- Adding edit button -->
-            <td><a href="/urls/<%= url %>"><button>Edit</button></a></td>
+            <td><a href="/urls/<%= url %>"><button class="btn btn-info">Edit</button></a></td>
           </tr>
         <% } %>
       </tbody>
     </table>
   </main>
   <% } else { %>
-    <h6>Please login to see TinyURL</h6>
-    <a class="nav-item nav-link" href="/login">Login</a>
+    <h5 style="margin: 1em;">Please login to see TinyURL</h5>
+    <a class="nav-item nav-link" href="/login"><button class="btn btn-primary">Login</button></a>
     <% } %>
 
   <!-- Bootstrap JS -->
