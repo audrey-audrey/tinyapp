@@ -110,45 +110,63 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const user_id = req.session.user_id;
-  const user = users[user_id];
+  const user = users[user_id]
+  let userURLs;
 
-  const templateVars = {
-    shortURL,
-    longURL: null,
-    user
-  };
-
-  // If user_id not found 
-  if (!user_id) {
-    return res.send('Login required to edit URL');
-  }
-
-  // If url not found
-  if (!urlDatabase[shortURL]) {
-    return res.send('URL not found!');
-  }
-
-  // If user_id matches URL creator id
-  if (user_id === urlDatabase[shortURL].userID) {
-    templateVars.longURL = urlDatabase[shortURL].longURL,
-      res.render("urls_show", templateVars);
+  if (user_id) {
+    userURLs = urlsForUser(user_id, urlDatabase);
   } else {
-    return res.send('Unauthorized access!')
+    res.status(401);
+    const templateVars = { message: "You are not authorized to view this Short Link, please Log In", username: users[user_id] };
+    res.render("error", templateVars);
+    return;
+  }
+
+  if (urlDatabase[shortURL]) {
+    if (userURLs[shortURL] && user_id) {
+      const longURL = urlDatabase[shortURL].longURL;
+      const templateVars = { shortURL, longURL, user };
+      res.render("urls_show", templateVars);
+    } else {
+      res.status(401);
+      const templateVars = { message: "You are not authorized to view this Short Link.", username: users[user_id] };
+      res.render("error", templateVars);
+    }
+  } else {
+    res.status(404);
+    const templateVars = { message: "This short URL does not exist", username: users[user_id] };
+    res.render("error", templateVars);
   }
 });
 
 // route post /urls/:shortURL
 app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const newURL = req.body.newURL;
   const user_id = req.session.user_id;
-  const user = users[user_id];
 
-  if (user === urlDatabase[shortURL].userID) {
-    const shortURL = req.params.shortURL;
-    urlDatabase[shortURL].longURL = req.body.newURL;
+  if (user_id === urlDatabase[shortURL].userID) {
+    urlDatabase[shortURL].longURL = newURL;
 
     res.redirect('/urls/');
   } else {
     res.send('Unauthorized access!');
+  }
+});
+
+app.post('/urls/:shortURL', (req, res) => {
+  const short = req.params.shortURL;
+  const newURL = req.body.newURL;
+  const userID = req.session.user_id;
+
+  if (urlDatabase[short].userID === userID) {
+    urlDatabase[short].longURL = newURL;
+    res.redirect('/urls');
+    return;
+  } else {
+    res.status(401);
+    const templateVars = { message: "You are not authorized to edit this URL", username: users[userID] };
+    res.render("urls_error", templateVars);
   }
 });
 
