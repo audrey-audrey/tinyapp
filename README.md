@@ -4,9 +4,10 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["List of created URLs"](https://github.com/audrey-audrey/tinyapp/blob/main/docs/urls-page.png?raw=true)
-!["Creating new URL"](https://github.com/audrey-audrey/tinyapp/blob/main/docs/urls-new.png?raw=true)
-!["Editing URL"](https://github.com/audrey-audrey/tinyapp/blob/main/docs/urls-edit.png?raw=true)
+!["Loggin into accountt"](https://github.com/audrey-audrey/tinyapp/blob/main/docs/login.gif)
+!["Creating new URL"](https://github.com/audrey-audrey/tinyapp/blob/main/docs/create_new_url.gif)
+!["Editing URL"](https://github.com/audrey-audrey/tinyapp/blob/main/docs/update_url.gif)
+!["Editing URL"](https://github.com/audrey-audrey/tinyapp/blob/main/docs/urls_show.png?raw=true)
 
 ## Dependencies
 
