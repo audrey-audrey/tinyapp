@@ -150,23 +150,9 @@ app.post("/urls/:shortURL", (req, res) => {
 
     res.redirect('/urls/');
   } else {
-    res.send('Unauthorized access!');
-  }
-});
-
-app.post('/urls/:shortURL', (req, res) => {
-  const short = req.params.shortURL;
-  const newURL = req.body.newURL;
-  const userID = req.session.user_id;
-
-  if (urlDatabase[short].userID === userID) {
-    urlDatabase[short].longURL = newURL;
-    res.redirect('/urls');
-    return;
-  } else {
     res.status(401);
     const templateVars = { message: "You are not authorized to edit this URL", username: users[userID] };
-    res.render("urls_error", templateVars);
+    res.render("error", templateVars);
   }
 });
 
